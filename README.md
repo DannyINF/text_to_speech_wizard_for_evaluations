@@ -1,16 +1,13 @@
 # text_to_speech_wizard_for_evaluations
 
-A new Flutter project.
+Mobile app for running wizard-of-oz evaluations for speaking agents.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Run `flutter pub get` to get all dependencies.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Create a `secret.env` file in the project root directory featuring all relevant API keys.
+```
+GOOGLE_KEY=<insert_your_google_api_key_here>
+AMAZON_KEY=...
+```
