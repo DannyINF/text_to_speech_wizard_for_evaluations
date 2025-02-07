@@ -1,3 +1,4 @@
+import 'package:chiclet/chiclet.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_text_to_speech/cloud_text_to_speech.dart';
 import 'package:just_audio/just_audio.dart';
@@ -13,26 +14,31 @@ void main() async {
       params: InitParamsGoogle(apiKey: Env.GOOGLE_KEY),
       withLogs: true,
     );
-    runApp(MyApp());
+    runApp(const MyApp());
   } catch (e) {
     print("Error initializing TTS: $e");
   }
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Text to Speech Demo',
+      title: 'Text-To-Speech | Wizard-Of-Oz for Evaluations',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: TextToSpeechScreen(),
+      debugShowCheckedModeBanner: false,
+      home: const TextToSpeechScreen(),
     );
   }
 }
 
 class TextToSpeechScreen extends StatefulWidget {
+  const TextToSpeechScreen({super.key});
+
   @override
   _TextToSpeechScreenState createState() => _TextToSpeechScreenState();
 }
@@ -68,18 +74,18 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
     }
   }
 
-  Future<void> _speak() async {
-    if (_controller.text.isEmpty) return;
+  Future<void> _speak({String message = ""}) async {
+    if (_controller.text.isEmpty && message != "") return;
 
     final ttsParams = TtsParamsGoogle(
       voice: _selectedVoice,
       audioFormat: AudioOutputFormatGoogle.mp3,
-      text: _controller.text,
+      text: message != "" ? message : _controller.text,
       pitch: 'default',
     );
 
     // check db
-    var result = await _databaseHelper.getAudioFile(_controller.text, _selectedVoice.gender.toString(), "google", _selectedVoice.provider, _selectedVoice.locale.languageCode.toString());
+    var result = await _databaseHelper.getAudioFile(message != "" ? message : _controller.text, _selectedVoice.gender.toString(), "google", _selectedVoice.provider, _selectedVoice.locale.languageCode.toString());
     if (result != null) {
       // Play the stored audio content
       Uint8List audioBytes = result["content"];
@@ -95,7 +101,7 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
 
         // Save the new audio to the database
         await _databaseHelper.insertAudioFile(
-          _controller.text,
+          message != "" ? message : _controller.text,
           _selectedVoice.gender,
           "google",
           _selectedVoice.provider,
@@ -124,28 +130,57 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Text to Speech Demo'),
+        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+        title: ElevatedButton(onPressed: () {}, child: const Text("Szenario 1")),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+        ],
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter text',
-              ),
-              maxLines: null,
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                children: [
+                  for (var x = 0; x < 15; x++) ChicletOutlinedAnimatedButton(
+                    onPressed: x % 5 == 0 ? null : () {
+                      _speak(message: "$x");
+                    },
+                    child: Text("$x"),
+                  )
+                ],
+              )
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _speak,
-              child: Text('Convert to Speech'),
-            ),
-
+            const SizedBox(height: 10,),
+            Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50)
+                      ),
+                      labelText: 'Enter text',
+                    ),
+                  maxLines: null,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton.filledTonal(
+                  onPressed: _speak,
+                  icon: const Icon(Icons.send),
+                ),
+              ],
+            )
           ],
-        ),
+        )
       ),
     );
   }

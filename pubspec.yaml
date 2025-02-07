@@ -39,7 +39,9 @@ dependencies:
   just_audio: ^0.9.46
   sqflite: ^2.4.1
   envied: ^1.1.0
+  chiclet: ^1.2.0
 
+  path: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
