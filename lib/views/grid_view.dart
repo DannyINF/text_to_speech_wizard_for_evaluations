@@ -15,21 +15,23 @@ class ChicletGridView extends StatefulWidget {
 class _ChicletGridViewState extends State<ChicletGridView> {
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 3,
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      children: [
-        for (var x = 0; x < 15; x++)
-          ChicletOutlinedAnimatedButton(
-            onPressed: x % 5 == 0
-                ? null
-                : () {
-              widget.voiceHandler.speak("$x");
-            },
-            child: Text("$x"),
-          ),
-      ],
+    return Center(
+      child: GridView.count(
+        crossAxisCount: 3,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        children: [
+          for (var x = 0; x < 15; x++)
+            ChicletOutlinedAnimatedButton(
+              onPressed: x % 5 == 0
+                  ? null
+                  : () {
+                widget.voiceHandler.speak("$x");
+              },
+              child: Text("$x"),
+            ),
+        ],
+      ),
     );
   }
 }

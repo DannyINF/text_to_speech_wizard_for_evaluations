@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:simple_icons/simple_icons.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -62,6 +63,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 initialValue: true,
                 leading: const Icon(Symbols.send),
                 title: const Text('Enable custom text input'),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: Text("API Keys"),
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                leading: const Icon(SimpleIcons.googlecloud),
+                title: Text("Google Cloud TTS API"),
+                value: const Text('************'),
+                enabled: false,
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(SimpleIcons.microsoftazure),
+                title: Text("Microsoft Azure Cognitive TTS API"),
+                value: const Text('not provided'),
+                enabled: false,
+              ),
+              SettingsTile.navigation(
+                leading: const Icon(SimpleIcons.amazonaws),
+                title: Text("Amazon Polly API"),
+                value: const Text('not provided'),
+                enabled: false,
               ),
             ],
           ),
