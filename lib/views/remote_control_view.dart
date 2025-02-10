@@ -36,7 +36,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 1,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung geradeaus.");},
-              child: Icon(Icons.keyboard_double_arrow_up),
+              child: const Icon(Icons.keyboard_double_arrow_up),
             ),
           ),
           StaggeredGridTile.count(
@@ -45,7 +45,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -53,7 +53,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 5,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung links.");},
-              child: Icon(Icons.keyboard_double_arrow_left),
+              child: const Icon(Icons.keyboard_double_arrow_left),
             ),
           ),
           StaggeredGridTile.count(
@@ -62,7 +62,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -70,7 +70,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 1,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("Jetzt geradeaus.");},
-              child: Icon(Icons.keyboard_arrow_up),
+              child: const Icon(Icons.keyboard_arrow_up),
             ),
           ),
           StaggeredGridTile.count(
@@ -79,7 +79,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -87,7 +87,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 5,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung rechts.");},
-              child: Icon(Icons.keyboard_double_arrow_right),
+              child: const Icon(Icons.keyboard_double_arrow_right),
             ),
           ),
           StaggeredGridTile.count(
@@ -95,7 +95,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 3,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("Jetzt links.");},
-              child: Icon(Icons.keyboard_arrow_left),
+              child: const Icon(Icons.keyboard_arrow_left),
             ),
           ),
           StaggeredGridTile.count(
@@ -104,7 +104,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -112,7 +112,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 3,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("Jetzt rechts.");},
-              child: Icon(Icons.keyboard_arrow_right),
+              child: const Icon(Icons.keyboard_arrow_right),
             ),
           ),
           StaggeredGridTile.count(
@@ -129,7 +129,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 1,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("Jetzt zurück.");},
-              child: Icon(Icons.keyboard_arrow_down),
+              child: const Icon(Icons.keyboard_arrow_down),
             ),
           ),
           StaggeredGridTile.count(
@@ -138,7 +138,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -147,7 +147,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
           StaggeredGridTile.count(
@@ -155,7 +155,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             mainAxisCellCount: 1,
             child: ChicletOutlinedAnimatedButton(
               onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung zurück.");},
-              child: Icon(Icons.keyboard_double_arrow_down),
+              child: const Icon(Icons.keyboard_double_arrow_down),
             ),
           ),
           StaggeredGridTile.count(
@@ -164,7 +164,7 @@ class _RemoteControlViewState extends State<RemoteControlView> {
             child: ChicletOutlinedAnimatedButton(
               buttonType: ChicletButtonTypes.circle,
               onPressed: null,
-              child: Text(""),
+              child: const Text(""),
             ),
           ),
         ],
