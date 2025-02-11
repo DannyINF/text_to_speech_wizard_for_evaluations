@@ -26,6 +26,30 @@ class VoiceHandler {
     try {
       final voicesResponse = await TtsGoogle.getVoices();
       final voices = voicesResponse.voices;
+
+      Set<String> uniqueCodes = {};
+      Set<String> uniqueLocales = {};
+      Set<String> uniqueProviders = {};
+      Set<String> uniqueGenders = {};
+      Set<String> uniqueEngines = {};
+      Set<String> uniqueNames = {};
+
+      for (var voice in voices) {
+        uniqueCodes.add(voice.code);
+        uniqueLocales.add(voice.locale.languageCode.toString() + " - " + voice.locale.languageName.toString());
+        uniqueProviders.add(voice.provider);
+        uniqueGenders.add(voice.gender.toString());
+        uniqueEngines.add(voice.engines.first);
+        uniqueNames.add(voice.name);
+      }
+
+      print(uniqueCodes);
+      print(uniqueLocales);
+      print(uniqueProviders);
+      print(uniqueGenders);
+      print(uniqueEngines);
+      print(uniqueNames);
+
       if (voices.isNotEmpty) {
         _selectedVoice = voices.firstWhere(
               (voice) => voice.locale.code.startsWith('de-') &&

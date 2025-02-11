@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:text_to_speech_wizard_for_evaluations/screens/settings.dart';
+import 'package:text_to_speech_wizard_for_evaluations/pages/settings.dart';
 import 'package:text_to_speech_wizard_for_evaluations/util/voice.dart';
 import 'package:text_to_speech_wizard_for_evaluations/views/grid_view.dart';
 import 'package:text_to_speech_wizard_for_evaluations/views/remote_control_view.dart';
