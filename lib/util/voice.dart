@@ -36,7 +36,7 @@ class VoiceHandler {
 
       for (var voice in voices) {
         uniqueCodes.add(voice.code);
-        uniqueLocales.add(voice.locale.languageCode.toString() + " - " + voice.locale.languageName.toString());
+        uniqueLocales.add("${voice.locale.languageCode} - ${voice.locale.languageName}");
         uniqueProviders.add(voice.provider);
         uniqueGenders.add(voice.gender.toString());
         uniqueEngines.add(voice.engines.first);

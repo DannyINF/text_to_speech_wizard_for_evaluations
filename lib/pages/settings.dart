@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         for (var model in models)
                           ListTile(
-                            leading: model == "Wavenet" ? const Icon(Symbols.check) : SizedBox(width: 20,),
+                            leading: model == "Wavenet" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(model),
                             onTap: () {print(model);},
                             selected: model == "Wavenet",
@@ -103,7 +103,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         for (var gender in genders)
                           ListTile(
-                            leading: gender == "Female" ? const Icon(Symbols.check) : SizedBox(width: 20,),
+                            leading: gender == "Female" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(gender),
                             onTap: () {print(gender);},
                             selected: gender == "Female",
@@ -141,7 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         for (var voice in voices)
                           ListTile(
-                            leading: voice == "Abigail" ? const Icon(Symbols.check) : SizedBox(width: 20,),
+                            leading: voice == "Abigail" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(voice),
                             onTap: () {print(voice);},
                             selected: voice == "Abigail",
@@ -188,7 +188,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         for (var lang in languageNames)
                           ListTile(
-                            leading: lang == "German"? const Icon(Symbols.check) : SizedBox(width: 20,),
+                            leading: lang == "German"? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(lang),
                             onTap: () {print(lang);},
                             selected: lang == "German",
@@ -213,23 +213,23 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
           SettingsSection(
-            title: Text("API Keys"),
+            title: const Text("API Keys"),
             tiles: <SettingsTile>[
               SettingsTile.navigation(
                 leading: const Icon(SimpleIcons.googlecloud),
-                title: Text("Google Cloud TTS API"),
+                title: const Text("Google Cloud TTS API"),
                 value: const Text('************'),
                 enabled: false,
               ),
               SettingsTile.navigation(
                 leading: const Icon(SimpleIcons.microsoftazure),
-                title: Text("Microsoft Azure Cognitive TTS API"),
+                title: const Text("Microsoft Azure Cognitive TTS API"),
                 value: const Text('not provided'),
                 enabled: false,
               ),
               SettingsTile.navigation(
                 leading: const Icon(SimpleIcons.amazonaws),
-                title: Text("Amazon Polly API"),
+                title: const Text("Amazon Polly API"),
                 value: const Text('not provided'),
                 enabled: false,
               ),
