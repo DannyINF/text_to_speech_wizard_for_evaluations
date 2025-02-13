@@ -4,24 +4,37 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:text_to_speech_wizard_for_evaluations/util/voice.dart';
 
+import '../db.dart';
+
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, required this.voiceHandler});
+  const SettingsPage({super.key, required this.voiceHandler, required this.initialSelectedModel, required this.initialSelectedLanguage, required this.initialSelectedGender, required this.initialSelectedVoice, required this.initialCustomInput});
 
   final VoiceHandler voiceHandler;
+  final String initialSelectedModel;
+  final String initialSelectedLanguage;
+  final String initialSelectedGender;
+  final String initialSelectedVoice;
+
+  final bool initialCustomInput;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  //TODO: load from db
-  String selectedModel = "wavenet";
-  String selectedLanguage = "German";
-  String selectedGender = "Female";
-  String selectedVoice = "Ava";
+
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
+
+  late String selectedModel = widget.initialSelectedModel;
+  late String selectedLanguage = widget.initialSelectedLanguage;
+  late String selectedGender = widget.initialSelectedGender;
+  late String selectedVoice = widget.initialSelectedVoice;
+
+  late bool customInput = widget.initialCustomInput;
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -76,8 +89,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                   selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
                                 }
                               });
-                              // TODO: Implement DB call to save selected model
-                              Navigator.of(context).pop();
+                              _databaseHelper.updateSettings(selectedModel, selectedLanguage, selectedGender, selectedVoice, customInput).then((value) {
+                                Navigator.of(context).pop();
+                              });
                             },
                             selected: model == selectedModel,
                           ),
@@ -116,8 +130,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                   selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
                                 }
                               });
-                              // TODO: Implement DB call to save selected language
-                              Navigator.of(context).pop();
+                              _databaseHelper.updateSettings(selectedModel, selectedLanguage, selectedGender, selectedVoice, customInput).then((value) {
+                                Navigator.of(context).pop();
+                              });
                             },
                             selected: lang == selectedLanguage,
                           ),
@@ -153,8 +168,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                   selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
                                 }
                               });
-                              // TODO: Implement DB call to save selected gender
-                              Navigator.of(context).pop();
+                              _databaseHelper.updateSettings(selectedModel, selectedLanguage, selectedGender, selectedVoice, customInput).then((value) {
+                                Navigator.of(context).pop();
+                              });
                             },
                             selected: gender == selectedGender,
                           ),
@@ -187,8 +203,9 @@ class _SettingsPageState extends State<SettingsPage> {
                               setState(() {
                                 selectedVoice = voice;
                               });
-                              // TODO: Implement DB call to save selected voice
-                              Navigator.of(context).pop();
+                              _databaseHelper.updateSettings(selectedModel, selectedLanguage, selectedGender, selectedVoice, customInput).then((value) {
+                                Navigator.of(context).pop();
+                              });
                             },
                             selected: voice == selectedVoice,
                           ),
@@ -203,8 +220,14 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text("Layout"),
             tiles: <SettingsTile>[
               SettingsTile.switchTile(
-                onToggle: (value) {},
-                initialValue: true,
+                onToggle: (value) {
+                  _databaseHelper.updateSettings(selectedModel, selectedLanguage, selectedGender, selectedVoice, value).then((onValue) {
+                    setState(() {
+                      customInput = value;
+                    });
+                  });
+                },
+                initialValue: customInput,
                 leading: const Icon(Symbols.send),
                 title: const Text('Enable custom text input'),
               ),
@@ -233,6 +256,66 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
+          SettingsSection(
+            title: const Text("Cache"),
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                leading: Icon(
+                  Symbols.delete_forever,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text("Clear cache"),
+                value: const Text("Deletes all cached audio files."),
+                onPressed: (value) {
+                  showAdaptiveDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog.adaptive(
+                        icon: Icon(
+                          Symbols.warning,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        title: Text("Warning!"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text("Clearing the cache cannot be undone. Do you still want to proceed?"),
+                            const SizedBox(height: 20,),
+                            // cancel button and proceed button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                MaterialButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Cancel"),
+                                  textColor: Theme.of(context).colorScheme.error,
+                                ),
+                                MaterialButton(
+                                  onPressed: () {
+                                    _databaseHelper.deleteAllAudioFiles();
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Cache cleared"),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text("Proceed"),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }
+              ),
+            ],
+          ),
+          const CustomSettingsSection(child: SizedBox(height: 50,))
         ],
       ),
     );

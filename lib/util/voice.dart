@@ -19,7 +19,7 @@ class VoiceHandler {
     try {
       TtsGoogle.init(
         params: InitParamsGoogle(apiKey: Env.GOOGLE_KEY),
-        withLogs: true,
+        withLogs: false,
       );
       await _loadVoices();
     } catch (e) {

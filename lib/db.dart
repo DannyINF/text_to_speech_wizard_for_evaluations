@@ -21,7 +21,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'audio_files.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE generated_audio_files (
@@ -32,6 +32,16 @@ class DatabaseHelper {
             provider TEXT,
             model TEXT,
             language_code TEXT
+          )
+        ''');
+        await db.execute('''
+          CREATE TABLE settings (
+            id INTEGER PRIMARY KEY,
+            model TEXT,
+            language_code TEXT,
+            gender TEXT,
+            voice TEXT,
+            custom_input BOOLEAN            
           )
         ''');
       },
@@ -84,10 +94,58 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> deleteAllAudioFiles() async {
+    final db = await database;
+    return await db.delete('generated_audio_files');
+  }
+
   Future<void> closeDatabase() async {
     final db = _database;
     if (db != null) {
       await db.close();
     }
+  }
+
+  Future<int> insertSettings(
+      String model, String languageCode, String gender, String voice, bool customInput) async {
+    final db = await database;
+    return await db.insert(
+      'settings',
+      {
+        'model': model,
+        'language_code': languageCode,
+        'gender': gender,
+        'voice': voice,
+        'custom_input': customInput ? 1 : 0,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<Map<String, Object?>?> getSettings() async {
+    final db = await database;
+    final result = await db.query('settings');
+    return result.isNotEmpty ? result.first : null;
+  }
+
+  Future<int> updateSettings(
+      String model, String languageCode, String gender, String voice, bool customInput) async {
+    final db = await database;
+    return await db.update(
+        'settings',
+        {
+          'model': model,
+          'language_code': languageCode,
+          'gender': gender,
+          'voice': voice,
+          'custom_input': customInput ? 1 : 0,
+        }
+    );
+  }
+
+  Future<bool> isSettingsEmpty() async {
+    final db = await database;
+    final result = await db.query('settings');
+    return result.isEmpty;
   }
 }
