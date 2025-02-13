@@ -10,6 +10,11 @@ class VoiceHandler {
   final AudioPlayer _audioPlayer = AudioPlayer();
   late VoiceGoogle _selectedVoice;
 
+  List<String> _models = [];
+  Map<String, List<String>> _languages = {};
+  Map<String, Map<String, List<String>>> _genders = {};
+  Map<String, Map<String, Map<String, List<String>>>> _names = {};
+
   Future<void> init() async {
     try {
       TtsGoogle.init(
@@ -27,42 +32,98 @@ class VoiceHandler {
       final voicesResponse = await TtsGoogle.getVoices();
       final voices = voicesResponse.voices;
 
-      Set<String> uniqueCodes = {};
-      Set<String> uniqueLocales = {};
-      Set<String> uniqueProviders = {};
-      Set<String> uniqueGenders = {};
-      Set<String> uniqueEngines = {};
-      Set<String> uniqueNames = {};
-
-      for (var voice in voices) {
-        uniqueCodes.add(voice.code);
-        uniqueLocales.add("${voice.locale.languageCode} - ${voice.locale.languageName}");
-        uniqueProviders.add(voice.provider);
-        uniqueGenders.add(voice.gender.toString());
-        uniqueEngines.add(voice.engines.first);
-        uniqueNames.add(voice.name);
-      }
-
-      print(uniqueCodes);
-      print(uniqueLocales);
-      print(uniqueProviders);
-      print(uniqueGenders);
-      print(uniqueEngines);
-      print(uniqueNames);
-
       if (voices.isNotEmpty) {
         _selectedVoice = voices.firstWhere(
-              (voice) => voice.locale.code.startsWith('de-') &&
+              (voice) =>
+          voice.locale.languageName == "German" &&
+              voice.engines.isNotEmpty &&
               voice.engines.first == "wavenet" &&
               voice.gender == "Female",
           orElse: () => voices.first,
         );
+
+        // Populate models
+        _models = {
+          for (var voice in voices)
+            if (voice.engines.isNotEmpty) voice.engines.first
+        }.toList();
+
+        // Populate languages, genders, and names
+        _languages = {};
+        _genders = {};
+        _names = {};
+
+        for (var model in _models) {
+          // Get languages for each model
+          var modelLanguages = {
+            for (var voice in voices.where(
+                    (v) => v.engines.isNotEmpty && v.engines.first == model))
+              voice.locale.languageName.toString()
+          }.toList();
+
+          _languages[model] = modelLanguages;
+
+          _genders[model] = {};
+          _names[model] = {};
+
+          for (var language in modelLanguages) {
+            // Get genders for each model and language
+            var modelLanguageGenders = {
+              for (var voice in voices.where((v) =>
+              v.engines.isNotEmpty &&
+                  v.locale.languageName!.isNotEmpty &&
+                  v.engines.first == model &&
+                  v.locale.languageName == language))
+                voice.gender
+            }.toList();
+
+            _genders[model]![language] = modelLanguageGenders;
+            _names[model]![language] = {};
+
+            for (var gender in modelLanguageGenders) {
+              // Get names for each model, language, and gender
+              var modelLanguageGenderNames = {
+                for (var voice in voices.where((v) =>
+                v.engines.isNotEmpty &&
+                    v.locale.languageName!.isNotEmpty &&
+                    v.gender.isNotEmpty &&
+                    v.engines.first == model &&
+                    v.locale.languageName == language &&
+                    v.gender == gender))
+                  if (voice.name.isNotEmpty) voice.name
+              }.toList();
+
+              _names[model]![language]![gender] = modelLanguageGenderNames;
+            }
+          }
+        }
       } else {
         print("No voices available.");
       }
     } catch (e) {
       print("Error fetching voices: $e");
     }
+  }
+
+
+  // Return models as a regular list
+  List<String> getModels() {
+    return _models;
+  }
+
+  // Return languages as a regular list based on model
+  List<String> getLanguages(String model) {
+    return _languages[model] ?? [];
+  }
+
+  // Return genders as a regular list based on model and language
+  List<String> getGenders(String model, String language) {
+    return _genders[model]?[language] ?? [];
+  }
+
+  // Return names as a regular list based on model, language, and gender
+  List<String> getNames(String model, String language, String gender) {
+    return _names[model]?[language]?[gender] ?? [];
   }
 
   Future<void> speak(String message) async {

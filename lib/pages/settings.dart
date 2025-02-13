@@ -2,15 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:simple_icons/simple_icons.dart';
+import 'package:text_to_speech_wizard_for_evaluations/util/voice.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({super.key, required this.voiceHandler});
+
+  final VoiceHandler voiceHandler;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  //TODO: load from db
+  String selectedModel = "wavenet";
+  String selectedLanguage = "German";
+  String selectedGender = "Female";
+  String selectedVoice = "Ava";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,166 +43,155 @@ class _SettingsPageState extends State<SettingsPage> {
           SettingsSection(
             title: const Text("AI Voice"),
             tiles: <SettingsTile>[
-              /*
-
-              {google, amazon, microsoft}
-
-               */
-              SettingsTile.navigation(
-                leading: const Icon(Symbols.host),
-                title: const Text('Provider'),
-                value: const Text('Google'),
-                enabled: false,
-              ),
-              /*
-
-              {standard, wavenet, neural2, polyglot, chirp, news, studio, casual}
-
-               */
               SettingsTile.navigation(
                 leading: const Icon(Symbols.network_node),
                 title: const Text('Model'),
-                value: const Text('Wavenet'),
+                value: Text(selectedModel),
                 onPressed: (value) {
                   showAdaptiveDialog(context: context, builder: (context) {
-                    var models = {"Standard", "Wavenet", "Neural2", "Polyglot", "Chirp", "News", "Studio", "Casual"};
+                    var models = (widget.voiceHandler.getModels());
                     return SimpleDialog(
                       title: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Symbols.network_node),
-                          SizedBox(width: 10,),
-                          Text("Model"),
+                          const Icon(Symbols.network_node),
+                          const SizedBox(width: 7,),
+                          const Text("Model"),
                         ],
                       ),
                       children: [
                         for (var model in models)
                           ListTile(
-                            leading: model == "Wavenet" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
+                            leading: model == selectedModel ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(model),
-                            onTap: () {print(model);},
-                            selected: model == "Wavenet",
+                            onTap: () {
+                              setState(() {
+                                selectedModel = model;
+                                if (!widget.voiceHandler.getLanguages(selectedModel).contains(selectedLanguage)) {
+                                  selectedLanguage = widget.voiceHandler.getLanguages(selectedModel)[0];
+                                }
+                                if (!widget.voiceHandler.getGenders(selectedModel, selectedLanguage).contains(selectedGender)) {
+                                  selectedGender = widget.voiceHandler.getGenders(selectedModel, selectedLanguage)[0];
+                                }
+                                if (!widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender).contains(selectedVoice)) {
+                                  selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
+                                }
+                              });
+                              // TODO: Implement DB call to save selected model
+                              Navigator.of(context).pop();
+                            },
+                            selected: model == selectedModel,
                           ),
                       ],
                     );
                   });
                 },
               ),
-              /*
-
-              {Female, Male}
-
-               */
+              SettingsTile.navigation(
+                leading: const Icon(Symbols.text_to_speech),
+                title: const Text('Language'),
+                value: Text(selectedLanguage),
+                onPressed: (value) {
+                  showAdaptiveDialog(context: context, builder: (context) {
+                    List<String> languages = (widget.voiceHandler.getLanguages(selectedModel.toLowerCase()));
+                    return SimpleDialog(
+                      title: const Row(
+                        children: [
+                          const Icon(Symbols.text_to_speech),
+                          const SizedBox(width: 7,),
+                          const Text("Language"),
+                        ],
+                      ),
+                      children: [
+                        for (var lang in languages)
+                          ListTile(
+                            leading: lang == selectedLanguage ? const Icon(Symbols.check) : const SizedBox(width: 20,),
+                            title: Text(lang),
+                            onTap: () {
+                              setState(() {
+                                selectedLanguage = lang;
+                                if (!widget.voiceHandler.getGenders(selectedModel, selectedLanguage).contains(selectedGender)) {
+                                  selectedGender = widget.voiceHandler.getGenders(selectedModel, selectedLanguage)[0];
+                                }
+                                if (!widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender).contains(selectedVoice)) {
+                                  selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
+                                }
+                              });
+                              // TODO: Implement DB call to save selected language
+                              Navigator.of(context).pop();
+                            },
+                            selected: lang == selectedLanguage,
+                          ),
+                      ],
+                    );
+                  });
+                },
+              ),
               SettingsTile.navigation(
                 leading: const Icon(Symbols.record_voice_over),
                 title: const Text('Gender'),
-                value: const Text('Female'),
+                value: Text(selectedGender),
                 onPressed: (value) {
                   showAdaptiveDialog(context: context, builder: (context) {
-                    var genders = {"Female", "Male"};
+                    var genders = (widget.voiceHandler.getGenders(selectedModel.toLowerCase(), selectedLanguage));
                     return SimpleDialog(
                       title: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Symbols.record_voice_over),
-                          SizedBox(width: 10,),
-                          Text("Gender"),
+                          const Icon(Symbols.record_voice_over),
+                          const SizedBox(width: 7,),
+                          const Text("Gender"),
                         ],
                       ),
                       children: [
                         for (var gender in genders)
                           ListTile(
-                            leading: gender == "Female" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
+                            leading: gender == selectedGender ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(gender),
-                            onTap: () {print(gender);},
-                            selected: gender == "Female",
+                            onTap: () {
+                              setState(() {
+                                selectedGender = gender;
+                                if (!widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender).contains(selectedVoice)) {
+                                  selectedVoice = widget.voiceHandler.getNames(selectedModel, selectedLanguage, selectedGender)[0];
+                                }
+                              });
+                              // TODO: Implement DB call to save selected gender
+                              Navigator.of(context).pop();
+                            },
+                            selected: gender == selectedGender,
                           ),
                       ],
                     );
                   });
                 },
               ),
-              /*
-
-              {Abigail, Jacob, Jackson, Ella, Sofia, Benjamin, Michael, Sebastian, Henry, Isabella, Gianna, Avery, Evelyn, Noah, Emma, Sophia, Harper,
-              James, Amelia, Mia, Ava, Liam, Mason, Olivia, Camila, Levi, William, Ethan, Emily, Charlotte, Luna, Elijah, Alexander, Oliver, Lucas,
-              Logan, Mateo, Elizabeth, Mila, Daniel}
-
-               */
               SettingsTile.navigation(
                 leading: const Icon(Symbols.voice_selection),
                 title: const Text('Voice'),
-                value: const Text('Abigail'),
+                value: Text(selectedVoice),
                 onPressed: (value) {
                   showAdaptiveDialog(context: context, builder: (context) {
-                    var voices =  {"Abigail", "Jacob", "Jackson", "Ella", "Sofia", "Benjamin", "Michael", "Sebastian", "Henry", "Isabella", "Gianna", "Avery", "Evelyn", "Noah", "Emma", "Sophia", "Harper",
-                      "James", "Amelia", "Mia", "Ava", "Liam", "Mason", "Olivia", "Camila", "Levi", "William", "Ethan", "Emily", "Charlotte", "Luna", "Elijah", "Alexander", "Oliver", "Lucas",
-                      "Logan", "Mateo", "Elizabeth", "Mila", "Daniel"};
+                    var voices = (widget.voiceHandler.getNames(selectedModel.toLowerCase(), selectedLanguage, selectedGender));
                     return SimpleDialog(
                       title: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Symbols.voice_selection),
-                          SizedBox(width: 10,),
-                          Text("Voice"),
+                          const Icon(Symbols.voice_selection),
+                          const SizedBox(width: 7,),
+                          const Text("Voice"),
                         ],
                       ),
                       children: [
                         for (var voice in voices)
                           ListTile(
-                            leading: voice == "Abigail" ? const Icon(Symbols.check) : const SizedBox(width: 20,),
+                            leading: voice == selectedVoice ? const Icon(Symbols.check) : const SizedBox(width: 20,),
                             title: Text(voice),
-                            onTap: () {print(voice);},
-                            selected: voice == "Abigail",
+                            onTap: () {
+                              setState(() {
+                                selectedVoice = voice;
+                              });
+                              // TODO: Implement DB call to save selected voice
+                              Navigator.of(context).pop();
+                            },
+                            selected: voice == selectedVoice,
                           ),
-                      ],
-                    );
-                  });
-                },
-              ),
-              /*
-
-              {af - Afrikaans, am - Amharic, ar - Arabic, bn - Bangla, eu - Basque, bg - Bulgarian, yue - Cantonese, ca - Catalan, zh - Chinese,
-              cs - Czech, da - Danish, nl - Dutch, en - English, et - Estonian, fil - Filipino, fi - Finnish, fr - French, gl - Galician,
-              de - German, el - Greek, gu - Gujarati, he - Hebrew, hi - Hindi, hu - Hungarian, is - Icelandic, id - Indonesian, it - Italian,
-              ja - Japanese, kn - Kannada, ko - Korean, lv - Latvian, lt - Lithuanian, ms - Malay, ml - Malayalam, mr - Marathi, nb - Norwegian Bokmål,
-              pl - Polish, pt - Portuguese, pa - Punjabi, ro - Romanian, ru - Russian, sr - Serbian, sk - Slovak, es - Spanish, sv - Swedish, ta - Tamil,
-              te - Telugu, th - Thai, tr - Turkish, uk - Ukrainian, ur - Urdu, vi - Vietnamese}
-
-               */
-              SettingsTile.navigation(
-                leading: const Icon(Symbols.text_to_speech),
-                title: const Text('Language'),
-                value: const Text('Deutsch'),
-                onPressed: (value) {
-                  showAdaptiveDialog(context: context, builder: (context) {
-                    List<String> languageNames = [
-                      "Afrikaans", "Amharic", "Arabic", "Bangla", "Basque", "Bulgarian", "Cantonese", "Catalan", "Chinese",
-                      "Czech", "Danish", "Dutch", "English", "Estonian", "Filipino", "Finnish", "French", "Galician",
-                      "German", "Greek", "Gujarati", "Hebrew", "Hindi", "Hungarian", "Icelandic", "Indonesian", "Italian",
-                      "Japanese", "Kannada", "Korean", "Latvian", "Lithuanian", "Malay", "Malayalam", "Marathi", "Norwegian Bokmål",
-                      "Polish", "Portuguese", "Punjabi", "Romanian", "Russian", "Serbian", "Slovak", "Spanish", "Swedish", "Tamil",
-                      "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu", "Vietnamese"
-                    ];
-
-                    return SimpleDialog(
-                      title: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Symbols.voice_selection),
-                          SizedBox(width: 10,),
-                          Text("Voice"),
-                        ],
-                      ),
-                      children: [
-                        for (var lang in languageNames)
-                          ListTile(
-                            leading: lang == "German"? const Icon(Symbols.check) : const SizedBox(width: 20,),
-                            title: Text(lang),
-                            onTap: () {print(lang);},
-                            selected: lang == "German",
-                          ),
-
                       ],
                     );
                   });

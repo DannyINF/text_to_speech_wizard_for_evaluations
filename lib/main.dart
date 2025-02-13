@@ -61,7 +61,7 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
           Navigator.push(
             context,
             CupertinoPageRoute(
-              builder: (context) => const SettingsPage(),
+              builder: (context) => SettingsPage(voiceHandler: widget.voiceHandler,),
             ),
           );
         }, icon: const Icon(Icons.settings)),
