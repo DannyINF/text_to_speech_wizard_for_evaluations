@@ -130,6 +130,7 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
         selectedVoice = settings["voice"]?.toString() ?? widget.initialSelectedVoice;
         customInput = settings["custom_input"] == 1;
       });
+      widget.voiceHandler.updateVoice(selectedModel, selectedLanguage, selectedGender, selectedVoice);
     }
   }
 
@@ -152,8 +153,8 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
                 ),
               ),
             );
-            await _initializeState(); // Re-fetch settings if changed
-            setState(() {}); // Refresh UI
+            _initializeState();
+            setState(() {});
           },
 
           icon: const Icon(Icons.settings),

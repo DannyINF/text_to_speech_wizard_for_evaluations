@@ -9,6 +9,7 @@ class VoiceHandler {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   final AudioPlayer _audioPlayer = AudioPlayer();
   late VoiceGoogle _selectedVoice;
+  late List<VoiceGoogle> cachedVoices;
 
   List<String> _models = [];
   Map<String, List<String>> _languages = {};
@@ -27,10 +28,30 @@ class VoiceHandler {
     }
   }
 
+  void updateVoice(String engine, String language, String gender, String name) {
+    try {
+      print(cachedVoices);
+      if (cachedVoices.isNotEmpty) {
+        _selectedVoice = cachedVoices.firstWhere(
+              (voice) =>
+          voice.locale.languageName == language &&
+              voice.engines.isNotEmpty &&
+              voice.engines.first == engine &&
+              voice.gender == gender &&
+              voice.name == name,
+          orElse: () => cachedVoices.first,
+        );
+      }
+    } catch(e) {
+      print("Error fetching voices: $e");
+    }
+  }
+
   Future<void> _loadVoices() async {
     try {
       final voicesResponse = await TtsGoogle.getVoices();
       final voices = voicesResponse.voices;
+      cachedVoices = voices;
 
       if (voices.isNotEmpty) {
         _selectedVoice = voices.firstWhere(
