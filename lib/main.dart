@@ -101,6 +101,7 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
   late String selectedGender;
   late String selectedVoice;
   late bool customInput;
+  bool _isLoading = false;
 
   bool isEditMode = false;
   int _selectedOption = 1; // Default: Grid
@@ -212,9 +213,25 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
                   ),
                   const SizedBox(width: 10),
                   IconButton.filledTonal(
-                    onPressed: () => widget.voiceHandler.speak(_controller.text),
-                    icon: const Icon(Icons.send),
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                      setState(() => _isLoading = true);
+                      await widget.voiceHandler.speak(_controller.text);
+                      setState(() => _isLoading = false);
+                    },
+                    icon: _isLoading
+                        ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                      ),
+                    )
+                        : const Icon(Icons.send),
                   ),
+
                 ],
               ),
           ],
