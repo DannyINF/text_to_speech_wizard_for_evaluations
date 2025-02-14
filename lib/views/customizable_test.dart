@@ -43,7 +43,16 @@ class _CustomizableTestState extends State<CustomizableTest> {
             return SimpleDialog(
               children: [
                 ListTile(
-                  leading: OutlinedButton(
+                  leading: IconButton(
+                    onPressed: tempIcon == null ? null : () {
+                      setDialogState(() {
+                        selectedIcon = null;
+                        tempIcon = null;
+                      });
+                    },
+                    icon: Icon(Symbols.delete)
+                  ),
+                  title: OutlinedButton(
                     style: ButtonStyle(
                         shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
@@ -55,6 +64,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
                       IconPickerIcon? pickedIcon = await showIconPicker(
                         context,
                         configuration: SinglePickerConfiguration(
+                          shouldScrollToSelectedIcon: true,
                           iconColor: Theme.of(context).colorScheme.primary,
                         ),
                       );
@@ -73,6 +83,8 @@ class _CustomizableTestState extends State<CustomizableTest> {
                       ),
                     ),
                   ),
+                ),
+                ListTile(
                   title: TextField(
                     controller: tempTitleController,
                     decoration: InputDecoration(
