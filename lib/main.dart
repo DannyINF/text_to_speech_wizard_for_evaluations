@@ -29,7 +29,7 @@ void main() async {
 }
 
 Future<void> _initializeSettings(DatabaseHelper dbHelper) async {
-  if (await dbHelper.isSettingsEmpty()) {
+  if (!await dbHelper.doesSettingsExist()) {
     await dbHelper.insertSettings("wavenet", "German", "Female", "Ava", false);
   }
 }

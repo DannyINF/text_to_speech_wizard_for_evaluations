@@ -14,6 +14,8 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
+    final result = await _database?.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\'');
+    print(result);
     return _database!;
   }
 
@@ -21,7 +23,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'audio_files.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 5,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE generated_audio_files (
@@ -32,9 +34,7 @@ class DatabaseHelper {
             provider TEXT,
             model TEXT,
             language_code TEXT
-          )
-        ''');
-        await db.execute('''
+          );
           CREATE TABLE settings (
             id INTEGER PRIMARY KEY,
             model TEXT,
@@ -45,6 +45,20 @@ class DatabaseHelper {
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 5) {
+          await db.execute('''
+          CREATE TABLE settings (
+            id INTEGER PRIMARY KEY,
+            model TEXT,
+            language_code TEXT,
+            gender TEXT,
+            voice TEXT,
+            custom_input BOOLEAN            
+          )
+        ''');
+        }
+      }
     );
   }
 
@@ -143,9 +157,15 @@ class DatabaseHelper {
     );
   }
 
-  Future<bool> isSettingsEmpty() async {
+  Future<bool> doesSettingsExist() async {
     final db = await database;
-    final result = await db.query('settings');
-    return result.isEmpty;
+    final result = await db.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'settings\'');
+    print(result);
+    if (result.isNotEmpty) {
+      final result = await db.query('settings');
+      print(result);
+      return result.isNotEmpty;
+    }
+    return result.isNotEmpty;
   }
 }
