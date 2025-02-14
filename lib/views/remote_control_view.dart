@@ -14,160 +14,72 @@ class RemoteControlView extends StatefulWidget {
 }
 
 class _RemoteControlViewState extends State<RemoteControlView> {
+  Map<int, bool> isLoading = {};
+
+  Future<void> _handlePress(int index, String message) async {
+    setState(() {
+      isLoading[index] = true;
+    });
+
+    await widget.voiceHandler.speak(message);
+
+    setState(() {
+      isLoading[index] = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> buttons = [
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 5, "cellsY": 1, "icon": Icons.keyboard_double_arrow_up, "message": "An der nächsten Kreuzung geradeaus."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 1, "cellsY": 5, "icon": Icons.keyboard_double_arrow_left, "message": "An der nächsten Kreuzung links."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 3, "cellsY": 1, "icon": Icons.keyboard_arrow_up, "message": "Jetzt geradeaus."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 1, "cellsY": 5, "icon": Icons.keyboard_double_arrow_right, "message": "An der nächsten Kreuzung rechts."},
+      {"cellsX": 1, "cellsY": 3, "icon": Icons.keyboard_arrow_left, "message": "Jetzt links."},
+      {"cellsX": 3, "cellsY": 3, "icon": null, "message": null},
+      {"cellsX": 1, "cellsY": 3, "icon": Icons.keyboard_arrow_right, "message": "Jetzt rechts."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 3, "cellsY": 1, "icon": Icons.keyboard_arrow_down, "message": "Jetzt zurück."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+      {"cellsX": 5, "cellsY": 1, "icon": Icons.keyboard_double_arrow_down, "message": "An der nächsten Kreuzung zurück."},
+      {"cellsX": 1, "cellsY": 1, "icon": null, "message": null},
+    ];
+
     return Center(
       child: StaggeredGrid.count(
         crossAxisCount: 7,
         mainAxisSpacing: 7,
         crossAxisSpacing: 7,
-        children: [
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
+        children: List.generate(buttons.length, (index) {
+          final button = buttons[index];
+          return StaggeredGridTile.count(
+            crossAxisCellCount: button["cellsX"],
+            mainAxisCellCount: button["cellsY"],
             child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
+              buttonType: button["icon"] == null ? ChicletButtonTypes.circle : ChicletButtonTypes.roundedRectangle,
+              onPressed: button["message"] == null
+                  ? null
+                  : () => _handlePress(index, button["message"] as String),
+              child: isLoading[index] == true
+                  ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                ),
+              )
+                  : button["icon"] != null
+                  ? Icon(button["icon"])
+                  : const Text(""),
             ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 5,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung geradeaus.");},
-              child: const Icon(Icons.keyboard_double_arrow_up),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 5,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung links.");},
-              child: const Icon(Icons.keyboard_double_arrow_left),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 3,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("Jetzt geradeaus.");},
-              child: const Icon(Icons.keyboard_arrow_up),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 5,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung rechts.");},
-              child: const Icon(Icons.keyboard_double_arrow_right),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 3,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("Jetzt links.");},
-              child: const Icon(Icons.keyboard_arrow_left),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 3,
-            mainAxisCellCount: 3,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 3,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("Jetzt rechts.");},
-              child: const Icon(Icons.keyboard_arrow_right),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 3,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("Jetzt zurück.");},
-              child: const Icon(Icons.keyboard_arrow_down),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 5,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              onPressed: () {widget.voiceHandler.speak("An der nächsten Kreuzung zurück.");},
-              child: const Icon(Icons.keyboard_double_arrow_down),
-            ),
-          ),
-          StaggeredGridTile.count(
-            crossAxisCellCount: 1,
-            mainAxisCellCount: 1,
-            child: ChicletOutlinedAnimatedButton(
-              buttonType: ChicletButtonTypes.circle,
-              onPressed: null,
-              child: const Text(""),
-            ),
-          ),
-        ],
+          );
+        }),
       ),
     );
   }
