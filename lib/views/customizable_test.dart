@@ -179,7 +179,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
                 buttonType: button["icon"] == null
                     ? ChicletButtonTypes.circle
                     : ChicletButtonTypes.roundedRectangle,
-                onPressed: () => _handlePress(index, spoken),
+                onPressed: spoken == "" ? null : () => _handlePress(index, spoken),
                 child: isLoading[index] == true
                     ? Center(
                   child: SizedBox(
