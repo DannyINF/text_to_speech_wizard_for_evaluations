@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:text_to_speech_wizard_for_evaluations/db.dart';
 import 'package:text_to_speech_wizard_for_evaluations/pages/settings.dart';
 import 'package:text_to_speech_wizard_for_evaluations/util/voice.dart';
+import 'package:text_to_speech_wizard_for_evaluations/views/customizable_test.dart';
 import 'package:text_to_speech_wizard_for_evaluations/views/grid_view.dart';
 import 'package:text_to_speech_wizard_for_evaluations/views/remote_control_view.dart';
 
@@ -106,7 +107,7 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
   bool isEditMode = false;
   int _selectedOption = 1; // Default: Grid
 
-  final Map<int, String> _dropdownItems = {1: 'Grid', 2: 'Remote'};
+  final Map<int, String> _dropdownItems = {1: 'Grid', 2: 'Remote', 3: 'Custom-Test'};
 
   @override
   void initState() {
@@ -193,7 +194,9 @@ class _TextToSpeechScreenState extends State<TextToSpeechScreen> {
             Expanded(
               child: _selectedOption == 1
                   ? ChicletGridView(voiceHandler: widget.voiceHandler)
-                  : RemoteControlView(voiceHandler: widget.voiceHandler),
+                  : _selectedOption == 2
+                  ? RemoteControlView(voiceHandler: widget.voiceHandler)
+                  : CustomizableTest(voiceHandler: widget.voiceHandler),
             ),
             if (customInput) const SizedBox(height: 10),
             if (customInput)
