@@ -23,7 +23,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'audio_files.db');
     return await openDatabase(
       path,
-      version: 5,
+      version: 12,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE generated_audio_files (
@@ -42,11 +42,21 @@ class DatabaseHelper {
             gender TEXT,
             voice TEXT,
             custom_input BOOLEAN            
+          );
+          CREATE TABLE buttons (
+            id INTEGER,
+            view TEXT,
+            cellsX INTEGER,
+            cellsY INTEGER,
+            icon BLOB,
+            title TEXT,
+            message TEXT,
+            PRIMARY KEY (id, view)
           )
         ''');
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 5) {
+        if (oldVersion < 12) {
           await db.execute('''
           CREATE TABLE settings (
             id INTEGER PRIMARY KEY,
@@ -55,6 +65,16 @@ class DatabaseHelper {
             gender TEXT,
             voice TEXT,
             custom_input BOOLEAN            
+          );
+          CREATE TABLE buttons (
+            id INTEGER,
+            view TEXT,
+            cellsX INTEGER,
+            cellsY INTEGER,
+            icon BLOB,
+            title TEXT,
+            message TEXT,
+            PRIMARY KEY (id, view)
           )
         ''');
         }
@@ -167,5 +187,62 @@ class DatabaseHelper {
       return result.isNotEmpty;
     }
     return result.isNotEmpty;
+  }
+
+  // function for saving a button, consisting of "view": TEXT, "cellsX": INTEGER, "cellsY": INTEGER, "icon": serializedIcon(IconData), "title": TEXT,  "message": text
+  Future<int> insertButton(int id, String view, int cellsX, int cellsY, String icon, String title, String message) async {
+    final db = await database;
+    return await db.insert(
+      'buttons',
+      {
+        'id': id,
+        'view': view,
+        'cellsX': cellsX,
+        'cellsY': cellsY,
+        'icon': icon,
+        'title': title,
+        'message': message
+      }
+    );
+  }
+
+  // update button
+  Future<int> updateButton(int id, String view, int cellsX, int cellsY, String icon, String title, String message) async {
+    final db = await database;
+    return await db.update(
+      'buttons',
+      {
+        'view': view,
+        'cellsX': cellsX,
+        'cellsY': cellsY,
+        'icon': icon,
+        'title': title,
+        'message': message
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // get button by view
+  Future<List<Map<String, dynamic>>> getButtonsByView(String view) async {
+    final db = await database;
+    return await db.query(
+      'buttons',
+      where: 'view = ?',
+      whereArgs: [view],
+      orderBy: 'id ASC',
+    );
+  }
+
+  // get button by view and cellsX and cellsY as id
+  Future<Map<String, dynamic>?> getButtonByIdAndView(int id, String view) async {
+    final db = await database;
+    final result = await db.query(
+      'buttons',
+      where: 'id = ? AND view = ?',
+      whereArgs: [id, view],
+    );
+    return result.isNotEmpty ? result.first : null;
   }
 }

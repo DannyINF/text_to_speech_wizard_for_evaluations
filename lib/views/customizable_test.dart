@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chiclet/chiclet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
+import '../db.dart';
 import '../util/voice.dart';
 
 class CustomizableTest extends StatefulWidget {
@@ -18,20 +21,46 @@ class CustomizableTest extends StatefulWidget {
 
 class _CustomizableTestState extends State<CustomizableTest> {
   Map<int, bool> isLoading = {};
-  IconData? selectedIcon;
+  IconPickerIcon? selectedIcon;
   String title = "";
   String spoken = "";
+  final String view = "custom";
 
   TextEditingController _controllerTitle = TextEditingController();
   TextEditingController _controllerSpoken = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadButton();
+  }
+
+  Future<void> _loadButton() async {
+    final dbHelper = DatabaseHelper();
+    final buttonData = await dbHelper.getButtonByIdAndView(0, view);
+
+    print(buttonData);
+
+    if (buttonData != null) {
+      setState(() {
+        selectedIcon = deserializeIcons(stringToListMap(buttonData["icon"]))?[0];
+        title = buttonData["title"] ?? "";
+        spoken = buttonData["message"] ?? "";
+        _controllerTitle.text = title;
+        _controllerSpoken.text = spoken;
+      });
+    } else {
+      // Save a default button if none exists
+      await dbHelper.insertButton(0, view, 5, 5, "", "", "");
+    }
+  }
 
   Future<void> _handleLongPress(int index, String message) async {
     setState(() {
       isLoading[index] = true;
     });
 
-    // Temporary variables
-    IconData? tempIcon = selectedIcon;
+    IconPickerIcon? tempIcon = selectedIcon;
     TextEditingController tempTitleController = TextEditingController(text: _controllerTitle.text);
     TextEditingController tempSpokenController = TextEditingController(text: _controllerSpoken.text);
 
@@ -50,16 +79,9 @@ class _CustomizableTestState extends State<CustomizableTest> {
                         tempIcon = null;
                       });
                     },
-                    icon: Icon(Symbols.delete)
+                    icon: Icon(Symbols.delete),
                   ),
                   title: OutlinedButton(
-                    style: ButtonStyle(
-                        shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        )
-                    ),
                     onPressed: () async {
                       IconPickerIcon? pickedIcon = await showIconPicker(
                         context,
@@ -71,14 +93,14 @@ class _CustomizableTestState extends State<CustomizableTest> {
 
                       if (pickedIcon != null) {
                         setDialogState(() {
-                          tempIcon = pickedIcon.data;
+                          tempIcon = pickedIcon;
                         });
                       }
                     },
                     child: SizedBox(
                       height: 60,
                       child: Icon(
-                        tempIcon ?? Symbols.add,
+                        tempIcon?.data,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
@@ -114,7 +136,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
                     children: [
                       MaterialButton(
                         onPressed: () {
-                          Navigator.of(context).pop(null); // Dismiss without saving
+                          Navigator.of(context).pop(null);
                         },
                         child: const Text("Cancel"),
                         textColor: Theme.of(context).colorScheme.error,
@@ -137,8 +159,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
           },
         );
       },
-    ).then((result) {
-      // Apply changes only if "Save" was pressed
+    ).then((result) async {
       if (result != null) {
         setState(() {
           selectedIcon = result['icon'];
@@ -147,6 +168,10 @@ class _CustomizableTestState extends State<CustomizableTest> {
           title = _controllerTitle.text;
           spoken = _controllerSpoken.text;
         });
+
+        // Update database
+        final dbHelper = DatabaseHelper();
+        await dbHelper.updateButton(0, view, 5, 5, listMapToString(serializeIcons([selectedIcon!])), title, spoken);
       }
     });
 
@@ -169,56 +194,56 @@ class _CustomizableTestState extends State<CustomizableTest> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> buttons = [
-      {"cellsX": 5, "cellsY": 5, "icon": Icons.plus_one, "message": "press"},
-    ];
-
     return Center(
       child: StaggeredGrid.count(
         crossAxisCount: 5,
         mainAxisSpacing: 7,
         crossAxisSpacing: 7,
-        children: List.generate(buttons.length, (index) {
-          final button = buttons[index];
-          return StaggeredGridTile.count(
-            crossAxisCellCount: button["cellsX"],
-            mainAxisCellCount: button["cellsY"],
+        children: [
+          StaggeredGridTile.count(
+            crossAxisCellCount: 5,
+            mainAxisCellCount: 5,
             child: GestureDetector(
-              onLongPress: button["message"]?.isNotEmpty == true
-                  ? () => _handleLongPress(index, button["message"] as String)
-                  : null,
+              onLongPress: () => _handleLongPress(0, spoken),
               child: ChicletOutlinedAnimatedButton(
-                buttonType: button["icon"] == null
+                buttonType: selectedIcon == null
                     ? ChicletButtonTypes.circle
                     : ChicletButtonTypes.roundedRectangle,
-                onPressed: spoken == "" ? null : () => _handlePress(index, spoken),
-                child: isLoading[index] == true
+                onPressed: spoken.isNotEmpty ? () => _handlePress(0, spoken) : null,
+                child: isLoading[0] == true
                     ? Center(
                   child: SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 )
-                    : button["icon"] != null
-                    ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(selectedIcon),
-                        title != "" ? Text(title) : SizedBox(),
-                      ],
-                    )
-                    : const Text(""),
+                    : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (selectedIcon != null) Icon(selectedIcon?.data),
+                    if (title.isNotEmpty) Text(title),
+                  ],
+                ),
               ),
-            )
-          );
-        }),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  // Convert List<Map<dynamic, String>?> to String
+  String listMapToString(List<Map<String, dynamic>?> list) {
+    return jsonEncode(list);
+  }
+
+  // Convert String back to List<Map<dynamic, String>?>
+  List<Map<String, dynamic>?> stringToListMap(String str) {
+    List<dynamic> decoded = jsonDecode(str);
+
+    // Convert each element to Map<dynamic, String>?, handling null values
+    return decoded.map((e) => e != null ? Map<String, dynamic>.from(e as Map) : null).toList();
+  }
+
 }
