@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chiclet/chiclet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -36,6 +37,17 @@ class _RemoteControlViewState extends State<RemoteControlView> {
     super.initState();
     _loadButtons();
   }
+
+  @override
+  void dispose() {
+    titleControllers.forEach((key, controller) => controller.dispose());
+    spokenControllers.forEach((key, controller) => controller.dispose());
+    tempTitleControllers.forEach((key, controller) => controller.dispose());
+    tempSpokenControllers.forEach((key, controller) => controller.dispose());
+
+    super.dispose();
+  }
+
 
   Future<void> _loadButtons() async {
     final dbHelper = DatabaseHelper();
@@ -333,9 +345,13 @@ class _RemoteControlViewState extends State<RemoteControlView> {
                     valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                   ),
                 )
-                    : selectedIcons[index] != null
-                    ? Icon(selectedIcons[index]?.data)
-                    : const Text(""),
+                    : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (selectedIcons[index] != null) Icon(selectedIcons[index]!.data),
+                    if (titleControllers[index] != null && titleControllers[index]?.text != "") AutoSizeText(titleControllers[index]!.text, maxLines: 1,),
+                  ],
+                ),
               ),
             ),
           );

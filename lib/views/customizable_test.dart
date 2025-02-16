@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:chiclet/chiclet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/Models/configuration.dart';
@@ -220,7 +221,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (selectedIcon != null) Icon(selectedIcon?.data),
-                    if (title.isNotEmpty) Text(title),
+                    if (title.isNotEmpty) AutoSizeText(title, maxLines: 1,),
                   ],
                 ),
               ),
