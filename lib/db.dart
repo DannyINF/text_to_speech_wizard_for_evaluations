@@ -206,15 +206,14 @@ class DatabaseHelper {
     return await db.update(
       'buttons',
       {
-        'view': view,
         'cellsX': cellsX,
         'cellsY': cellsY,
         'icon': icon,
         'title': title,
         'message': message
       },
-      where: 'id = ?',
-      whereArgs: [id],
+      where: 'id = ? AND view = ?',
+      whereArgs: [id, view],
     );
   }
 

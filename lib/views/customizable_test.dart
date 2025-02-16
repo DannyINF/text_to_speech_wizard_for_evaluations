@@ -41,7 +41,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
 
     if (buttonData != null) {
       setState(() {
-        selectedIcon = deserializeIcons(stringToListMap(buttonData["icon"]))?[0];
+        selectedIcon = buttonData["icon"] == "" ? null : deserializeIcons(stringToListMap(buttonData["icon"]))?[0];
         title = buttonData["title"] ?? "";
         spoken = buttonData["message"] ?? "";
         _controllerTitle.text = title;
@@ -169,7 +169,7 @@ class _CustomizableTestState extends State<CustomizableTest> {
 
         // Update database
         final dbHelper = DatabaseHelper();
-        await dbHelper.updateButton(0, view, 5, 5, listMapToString(serializeIcons([selectedIcon!])), title, spoken);
+        await dbHelper.updateButton(0, view, 5, 5, selectedIcon == null ? "" : listMapToString(serializeIcons([selectedIcon!])), title, spoken);
       }
     });
 
