@@ -161,6 +161,7 @@ class VoiceHandler {
       "google",
       _selectedVoice.provider,
       _selectedVoice.locale.languageCode.toString(),
+      _selectedVoice.name,
     );
 
     if (result != null) {
@@ -180,6 +181,7 @@ class VoiceHandler {
           "google",
           _selectedVoice.provider,
           _selectedVoice.locale.languageCode.toString(),
+          _selectedVoice.name,
           audioBytes,
         );
 

@@ -23,7 +23,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'audio_files.db');
     return await openDatabase(
       path,
-      version: 12,
+      version: 14,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE generated_audio_files (
@@ -33,30 +33,10 @@ class DatabaseHelper {
             gender TEXT,
             provider TEXT,
             model TEXT,
+            voice TEXT,
             language_code TEXT
           );
-          CREATE TABLE settings (
-            id INTEGER PRIMARY KEY,
-            model TEXT,
-            language_code TEXT,
-            gender TEXT,
-            voice TEXT,
-            custom_input BOOLEAN            
-          );
-          CREATE TABLE buttons (
-            id INTEGER,
-            view TEXT,
-            cellsX INTEGER,
-            cellsY INTEGER,
-            icon BLOB,
-            title TEXT,
-            message TEXT,
-            PRIMARY KEY (id, view)
-          )
         ''');
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 12) {
           await db.execute('''
           CREATE TABLE settings (
             id INTEGER PRIMARY KEY,
@@ -64,8 +44,10 @@ class DatabaseHelper {
             language_code TEXT,
             gender TEXT,
             voice TEXT,
-            custom_input BOOLEAN            
+            custom_input INTEGER
           );
+        ''');
+          await db.execute('''
           CREATE TABLE buttons (
             id INTEGER,
             view TEXT,
@@ -75,16 +57,31 @@ class DatabaseHelper {
             title TEXT,
             message TEXT,
             PRIMARY KEY (id, view)
-          )
+          );
         ''');
-        }
-      }
+      },
+      // onUpgrade: (db, oldVersion, newVersion) async {
+      //   if (oldVersion < 14) {
+      //     await db.execute('''
+      //     CREATE TABLE buttons (
+      //       id INTEGER,
+      //       view TEXT,
+      //       cellsX INTEGER,
+      //       cellsY INTEGER,
+      //       icon BLOB,
+      //       title TEXT,
+      //       message TEXT,
+      //       PRIMARY KEY (id, view)
+      //     )
+      //   ''');
+      //   }
+      // }
     );
   }
 
-  Future<int> insertAudioFile(String input, String gender, String provider, String model, String languageCode, Uint8List content) async {
+  Future<int> insertAudioFile(String input, String gender, String provider, String model, String languageCode, String voice, Uint8List content) async {
     final db = await database;
-    final id = '$input-$gender-$provider-$model-$languageCode';
+    final id = '$input-$gender-$provider-$model-$languageCode-$voice';
     return await db.insert(
       'generated_audio_files',
       {
@@ -95,15 +92,16 @@ class DatabaseHelper {
         'provider': provider,
         'model': model,
         'language_code': languageCode,
+        'voice': voice,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
   Future<Map<String, dynamic>?> getAudioFile(
-      String input, String gender, String provider, String model, String languageCode) async {
+      String input, String gender, String provider, String model, String languageCode, String voice) async {
     final db = await database;
-    final id = '$input-$gender-$provider-$model-$languageCode';
+    final id = '$input-$gender-$provider-$model-$languageCode-$voice';
     final result = await db.query(
       'generated_audio_files',
       where: 'id = ?',
@@ -118,9 +116,9 @@ class DatabaseHelper {
   }
 
   Future<int> deleteAudioFile(
-      String input, String gender, String provider, String model, String languageCode) async {
+      String input, String gender, String provider, String model, String languageCode, String voice) async {
     final db = await database;
-    final id = '$input-$gender-$provider-$model-$languageCode';
+    final id = '$input-$gender-$provider-$model-$languageCode-$voice';
     return await db.delete(
       'generated_audio_files',
       where: 'id = ?',
@@ -180,7 +178,7 @@ class DatabaseHelper {
   Future<bool> doesSettingsExist() async {
     final db = await database;
     final result = await db.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'settings\'');
-    print(result);
+    print("result: $result");
     if (result.isNotEmpty) {
       final result = await db.query('settings');
       print(result);
