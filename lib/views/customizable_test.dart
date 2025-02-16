@@ -39,8 +39,6 @@ class _CustomizableTestState extends State<CustomizableTest> {
     final dbHelper = DatabaseHelper();
     final buttonData = await dbHelper.getButtonByIdAndView(0, view);
 
-    print(buttonData);
-
     if (buttonData != null) {
       setState(() {
         selectedIcon = deserializeIcons(stringToListMap(buttonData["icon"]))?[0];

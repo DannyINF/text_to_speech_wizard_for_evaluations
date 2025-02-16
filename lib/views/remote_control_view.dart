@@ -44,7 +44,6 @@ class _RemoteControlViewState extends State<RemoteControlView> {
     if (storedButtons.isNotEmpty) {
       setState(() {
         buttons = storedButtons;
-        print("buttons: $buttons");
       });
     } else {
       setState(() {
@@ -276,7 +275,6 @@ class _RemoteControlViewState extends State<RemoteControlView> {
     ).then((result) async {
       if (result != null) {
         setState(() {
-          print("result: $result");
           selectedIcons[index] = result['icon'];
           titleControllers[index]?.text = result['title'].toString();
           spokenControllers[index]?.text = result['spoken'].toString();

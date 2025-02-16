@@ -30,7 +30,6 @@ class VoiceHandler {
 
   void updateVoice(String engine, String language, String gender, String name) {
     try {
-      print(cachedVoices);
       if (cachedVoices.isNotEmpty) {
         _selectedVoice = cachedVoices.firstWhere(
               (voice) =>

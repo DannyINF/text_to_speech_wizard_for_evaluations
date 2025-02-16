@@ -14,8 +14,6 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
-    final result = await _database?.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\'');
-    print(result);
     return _database!;
   }
 
@@ -178,10 +176,8 @@ class DatabaseHelper {
   Future<bool> doesSettingsExist() async {
     final db = await database;
     final result = await db.rawQuery('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'settings\'');
-    print("result: $result");
     if (result.isNotEmpty) {
       final result = await db.query('settings');
-      print(result);
       return result.isNotEmpty;
     }
     return result.isNotEmpty;
